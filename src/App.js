@@ -35,7 +35,7 @@ function Result({resultCountries}) {
          }
        </ul>
        <br/>
-       <h3>Region - Continent</h3>
+       <h3>Region - SubRegion</h3>
        <p>{country.region} - {country.subregion}</p>
        <br/>
        <h3>Area</h3>
