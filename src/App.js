@@ -124,7 +124,7 @@ function App() {
 
   useEffect(()=>{
     console.log('In Single country UseEffect');
-    console.log('resultCountries >>', resultCountries);
+  // console.log('resultCountries >>', resultCountries);
     if(resultCountries.length === 1 && resultCountries[0].alpha2Code != 'NA')
     {
       let singleCountryCode = (resultCountries[0].alpha3Code);
