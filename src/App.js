@@ -55,11 +55,7 @@ function DetailResult({resultCountries}) {
        </ul>
        <br/>
        <h3>Current Weather Report</h3>
-       <ul class="UnorderedList">
-         {
-         (country.callingCodes).map(callCode => <li key={callCode}>+{callCode}</li>)
-         }
-       </ul>
+         <p>COMING SOON</p>
      </div> 
     );
 
