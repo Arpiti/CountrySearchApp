@@ -2,14 +2,20 @@ import './App.css';
 import axios from 'axios';
 import React, {useEffect, useState} from 'react';
 
-const allCountries_api = 'https://restcountries.eu/rest/v2/all';
-const singleCountryDetail_api = 'https://restcountries.eu/rest/v2/alpha/';
+const allCountriesApi = 'https://restcountries.eu/rest/v2/all';
+const accessKey = '5e85474583bebe818a9e1ffa5209ff80';
+const weatherStackApi = 'http://api.weatherstack.com/current?access_key='+accessKey+'&query=';
 
-function Result({resultCountries}) {
-  console.log('ResultCountries from Result >>', resultCountries);
-  if(resultCountries.length === 1 && resultCountries[0].alpha2Code != 'NA')
-  {
-    let country = resultCountries[0];
+function Weather() {
+  return (
+    <div>
+      
+    </div>
+  )
+}
+
+function DetailResult({resultCountries}) {
+  let country = resultCountries[0];
     return (
      <div>
        <h2>{country.name}</h2>
@@ -47,22 +53,63 @@ function Result({resultCountries}) {
          (country.callingCodes).map(callCode => <li key={callCode}>+{callCode}</li>)
          }
        </ul>
-       
-
+       <br/>
+       <h3>Current Weather Report</h3>
+       <ul class="UnorderedList">
+         {
+         (country.callingCodes).map(callCode => <li key={callCode}>+{callCode}</li>)
+         }
+       </ul>
      </div> 
     );
-  }
+
+}
+
+function Result({resultCountries, setResultCountries}) {
+  
+  console.log('ResultCountries from Result >>', resultCountries);
+ 
+  if(resultCountries.length === 1 && resultCountries[0].alpha2Code != 'NA')
+    return <DetailResult resultCountries={resultCountries}></DetailResult>
+  else if(resultCountries.length === 1 && resultCountries[0].alpha2Code === 'NA')
+    return <div>{resultCountries[0].name}</div>
   else {
-    
     console.log('in Else return');
     return (
       <ul class="UnorderedList">
          {
-           resultCountries.map(country => <li key={country.alpha2Code}> {country.name} </li>)
+           resultCountries.map(country => <li key={country.alpha2Code}> {country.name} 
+           <Button country={country} resultCountries={resultCountries} setResultCountries={setResultCountries}></Button></li>)
          }
        </ul>
     );
   }
+}
+
+
+
+function Button({country,resultCountries,setResultCountries}) {
+  
+  let id = '';
+
+  const findCoun = (country) => 
+  {
+    console.log('id >>', id);
+    return country.name==id.replace("Button","")
+  }
+
+  const showDetailResult = (event) =>
+  {
+    id = event.target.id;
+    let coun = resultCountries.find(findCoun);
+    //console.log('Button id >>', coun);
+    
+    setResultCountries([coun]);
+  }
+
+  return (
+    <button id= {country.name+'Button'} onClick={showDetailResult}>show</button>
+  )
 }
 
 function App() {
@@ -70,6 +117,33 @@ function App() {
   const [inputCountry, setInputCountry] = useState('');
   const [allCountries, setAllCountries] = useState([]);
   const [resultCountries, setResultCountries] = useState([]);
+
+  useEffect(()=>{
+    console.log('In UseEffect');
+    axios
+      .get(allCountriesApi)
+      .then(response => {
+        console.log('Promise Fulfilled');
+        setAllCountries(response.data);
+      })
+  },[])
+
+  useEffect(()=>{
+    console.log('resultCountries >>', resultCountries);
+
+    if(resultCountries.length === 1 && resultCountries[0].alpha2Code !== 'NA'){
+      let capital = (resultCountries[0].capital); 
+      const weatherUri = weatherStackApi+capital;
+      console.log('weatherUri >>', weatherUri);
+
+      axios
+       .get(weatherUri)
+       .then(response => {
+          console.log(' Waether UseEffect Promise Fulfilled');
+          console.log(response.data);
+       })
+    }
+    });
 
   const handleCountryInputChange = (event) => {
 
@@ -111,37 +185,7 @@ function App() {
   };
 
 
-  useEffect(()=>{
-    console.log('In UseEffect');
-    axios
-      .get(allCountries_api)
-      .then(response => {
-        console.log('Promise Fulfilled');
-        setAllCountries(response.data);
-      })
-  },[])
-
-
-  useEffect(()=>{
-    console.log('In Single country UseEffect');
-  // console.log('resultCountries >>', resultCountries);
-    if(resultCountries.length === 1 && resultCountries[0].alpha2Code != 'NA')
-    {
-      let singleCountryCode = (resultCountries[0].alpha3Code);
-      console.log('SingleCountry >>', singleCountryCode);
-      console.log('In Single country UseEffect');
-
-      const uri = singleCountryDetail_api+singleCountryCode;
-      console.log('URI >>', uri);
-
-      axios
-       .get(uri)
-       .then(response => {
-          console.log(' Single country UseEffect Promise Fulfilled');
-          console.log(response.data);
-       })
-    }
-    },[inputCountry]);
+ 
 
 
   return (
@@ -154,7 +198,7 @@ function App() {
      <div>
        <br/>
        <br/>
-       <Result resultCountries={resultCountries}/>
+       <Result resultCountries={resultCountries} setResultCountries={setResultCountries}/>
      </div>
     </div>
   );
